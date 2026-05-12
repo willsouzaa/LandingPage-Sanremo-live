@@ -1,0 +1,48 @@
+import type { DevelopmentContent } from "../../types";
+
+export const developmentTemplate: DevelopmentContent = {
+  id: "novo-empreendimento",
+  slug: "novo-empreendimento",
+  name: "Novo Empreendimento",
+  projectName: "Nome do Empreendimento",
+  formLabel: "Nome do Empreendimento — Bairro",
+  city: "Cidade",
+  neighborhood: "Bairro",
+  status: "Em construção",
+  logoImage: "/content/developments/novo-empreendimento/logo/logo.png",
+  discountLabel: "Condicoes especiais",
+  originalPrice: 0,
+  discountedPrice: 0,
+  typology: "2 dormitórios",
+  area: "70 m² privativos",
+  highlights: ["Destaque 1", "Destaque 2", "Destaque 3"],
+  cta: "Tenho interesse",
+  isActive: true,
+  displayOrder: 99,
+  coverImage: "/content/developments/novo-empreendimento/cover/capa.jpg",
+  description: "Descrição do empreendimento.",
+  builder: "RDO",
+  deliveryDate: "2026",
+  registration: "",
+  bedrooms: "2 dormitórios",
+  suites: "1 suíte",
+  address: "Cidade - UF",
+  latitude: 0,
+  longitude: 0,
+  locationDescription: "Descrição da localização.",
+  apartmentFeatures: ["Característica 1"],
+  condoFeatures: ["Característica 1"],
+  galleryImages: [
+    { title: "Imagem 1", url: "/content/developments/novo-empreendimento/gallery/imagem-1.jpg" },
+  ],
+  floorPlans: [
+    { title: "Planta 1", url: "/content/developments/novo-empreendimento/plans/planta-1.jpg" },
+  ],
+  documents: [
+    {
+      title: "Tabela",
+      url: "/content/developments/novo-empreendimento/documents/tabela.pdf",
+      fileType: "pdf",
+    },
+  ],
+};
