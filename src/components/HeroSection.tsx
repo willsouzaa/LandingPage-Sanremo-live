@@ -1,44 +1,40 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import logoLiveCacupe from "@/assets/logo-lumis.webp";
-
+import heroImage from "@/assets/lumis/lumis-hero.webp";
 import logoSanremo from "@/assets/Sanremo.png";
 
 export function HeroSection() {
   return (
     <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-      {/* imagem de fundo */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/content/developments/live-cacupe/hero/fachada.webp')" }}
+      <img
+        src={heroImage}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
       />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(24,39,34,0.95)_0%,rgba(24,39,34,0.84)_42%,rgba(24,39,34,0.44)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#182722] to-transparent" />
 
-      {/* overlay degradê */}
-      <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/70 to-navy/92" />
-
-      {/* brilho decorativo */}
-      <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-champagne/15 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-champagne/10 blur-3xl" />
-      <div className="absolute bottom-8 left-1/2 h-40 w-[32rem] -translate-x-1/2 rounded-full bg-black/20 blur-3xl" />
-
-      <div className="relative z-10 container flex min-h-[100svh] max-w-6xl flex-col justify-center px-4 py-16 text-center md:py-20">
+      <div className="relative z-10 container flex min-h-[100svh] max-w-6xl flex-col items-center justify-center px-4 py-16 text-center md:py-20">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mx-auto mb-6 flex w-fit max-w-full items-center justify-center gap-2.5 md:mb-8 md:gap-6"
+          className="mx-auto mb-6 flex w-fit max-w-full items-center justify-center gap-3 md:mb-8 md:gap-6"
         >
           <img
             src={logoSanremo}
             alt="San Remo"
-            className="h-9 w-auto max-w-[38vw] drop-shadow-2xl md:h-20 md:max-w-none"
+            className="h-10 w-auto max-w-[38vw] brightness-0 invert drop-shadow-2xl md:h-20 md:max-w-none"
           />
-          <div className="h-8 w-px bg-white/35 md:h-16" />
-          <img
-            src={logoLiveCacupe}
-            alt="Live Cacupé"
-            className="h-10 w-auto max-w-[42vw] drop-shadow-2xl md:h-24 md:max-w-none"
-          />
+          <div className="h-9 w-px bg-white/35 md:h-16" />
+          <div className="flex flex-col items-center">
+            <span className="font-body text-[10px] font-semibold uppercase tracking-[0.28em] text-champagne md:text-xs">
+              Lumis Construtora
+            </span>
+            <span className="mt-1 font-heading text-4xl font-bold leading-none text-white md:text-7xl">
+              LUMIS
+            </span>
+          </div>
         </motion.div>
 
         <motion.div
@@ -49,7 +45,7 @@ export function HeroSection() {
         >
           <span className="h-2 w-2 rounded-full bg-champagne animate-pulse" />
           <span className="font-body text-[10px] font-semibold uppercase tracking-[0.16em] text-champagne md:text-xs">
-            Pronto para morar • Cacupé • Florianópolis
+            Pregão de Guerra Lumis • 30/05/2026 • Acesso VIP 8h
           </span>
         </motion.div>
 
@@ -57,52 +53,42 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.6 }}
-          className="mb-4 text-[2.4rem] font-heading font-bold leading-[1.05] text-primary-foreground md:mb-5 md:text-5xl lg:text-7xl"
+          className="mx-auto mb-4 max-w-4xl text-[2.35rem] font-heading font-bold leading-[1.05] text-primary-foreground md:mb-5 md:text-5xl lg:text-7xl"
         >
-          O privilégio de viver com{" "}
+          Uma condição{" "}
           <span className="text-champagne drop-shadow-[0_2px_12px_rgba(255,235,200,0.18)]">
-            vista para o mar
+            que nunca houve antes
           </span>{" "}
-          e o pôr do sol mais bonito da ilha
+          na história da Lumis
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mx-auto mb-8 max-w-2xl text-base text-primary-foreground/80 md:mb-10 md:text-xl"
-        >
-          Arquitetura biofílica, exclusividade e natureza integrada. Lumis Empreendimentos.
-        </motion.p>
-
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.5 }}
+          transition={{ delay: 0.65, duration: 0.5 }}
           className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
         >
           <a
             href="#formulario"
             className="min-w-[280px] rounded-xl bg-accent px-8 py-4 text-lg font-bold text-accent-foreground shadow-xl transition-all hover:scale-[1.03] hover:bg-accent/90"
           >
-            Quero registrar meu interesse
+            Quero meu acesso VIP
           </a>
 
           <a
             href="#empreendimentos"
             className="min-w-[240px] rounded-xl border-2 border-primary-foreground/25 bg-white/5 px-8 py-3.5 text-base font-semibold text-primary-foreground transition-all hover:scale-[1.02] hover:border-primary-foreground/60 hover:bg-white/10 md:py-4 md:text-lg"
           >
-            Conhecer o empreendimento
+            Ver oportunidades
           </a>
         </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.75, duration: 0.5 }}
-          className="mt-5 text-sm text-primary-foreground/70 md:mt-6 md:text-base"
+          transition={{ delay: 0.85, duration: 0.5 }}
+          className="mx-auto mt-5 max-w-xl text-sm text-primary-foreground/70 md:mt-6 md:text-base"
         >
-          98,5% das obras concluídas • Atendimento exclusivo por ordem de cadastro.
+          Cadastre-se e garanta acesso VIP prioritário — atendimento das 8h às 9h, uma hora antes do público geral.
         </motion.p>
       </div>
 

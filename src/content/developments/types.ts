@@ -20,8 +20,8 @@ export interface DevelopmentContent {
   status: DevelopmentStatus;
   logoImage?: string;
   discountLabel: string;
-  originalPrice: number;
-  discountedPrice: number;
+  originalPrice?: number;
+  discountedPrice?: number;
   typology?: string;
   area?: string;
   highlights: string[];

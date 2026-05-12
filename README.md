@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# San Remo empreendimentos
 
-TODO: Document your project here
+Landing page da Promoção Lumis para captação de interessados em empreendimentos selecionados.

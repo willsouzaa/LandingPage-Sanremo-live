@@ -21,7 +21,7 @@ export const developmentTemplate: DevelopmentContent = {
   displayOrder: 99,
   coverImage: "/content/developments/novo-empreendimento/cover/capa.jpg",
   description: "Descrição do empreendimento.",
-  builder: "RDO",
+  builder: "Lumis",
   deliveryDate: "2026",
   registration: "",
   bedrooms: "2 dormitórios",

@@ -1,19 +1,11 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowDownRight, BedDouble, MapPin, Ruler } from "lucide-react";
+import { ArrowDownRight, MapPin } from "lucide-react";
 import {
   activeDevelopments,
   neighborhoodFilters,
   type DevelopmentContent,
 } from "@/content/developments";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 function handleInterestClick(dev: DevelopmentContent) {
   const payload = {
@@ -29,6 +21,10 @@ function handleInterestClick(dev: DevelopmentContent) {
 function DevelopmentCard({ dev }: { dev: DevelopmentContent }) {
   const [coverFailed, setCoverFailed] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
+  const unitDetails = [
+    dev.typology ? { label: "Tipologia", value: dev.typology } : null,
+    dev.area ? { label: "Área", value: dev.area } : null,
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
     <motion.div
@@ -74,41 +70,20 @@ function DevelopmentCard({ dev }: { dev: DevelopmentContent }) {
           <h3 className="max-w-[12ch] font-heading text-[1.8rem] font-bold leading-none text-white md:text-[2rem]">
             {dev.projectName}
           </h3>
-          <p className="mt-2 text-sm font-semibold uppercase tracking-[0.14em] text-white/80">
-            {dev.builder}
-          </p>
-
-          <div className="mt-3 space-y-2 text-sm text-white/92 md:text-base">
-            <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-white/80 md:h-5 md:w-5" />
-              <span>{dev.neighborhood}, {dev.city}</span>
-            </div>
-            {dev.typology ? (
-              <div className="flex items-center gap-3">
-                <BedDouble className="h-4 w-4 text-white/80 md:h-5 md:w-5" />
-                <span>{dev.typology}</span>
-              </div>
-            ) : null}
-            {dev.area ? (
-              <div className="flex items-center gap-3">
-                <Ruler className="h-4 w-4 text-white/80 md:h-5 md:w-5" />
-                <span>{dev.area}</span>
-              </div>
-            ) : null}
-          </div>
+    
 
           <div className="mt-3 rounded-[18px] bg-white/18 px-4 py-2.5 backdrop-blur-sm">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
-              {dev.discountLabel || "A partir de"}
+              Dados da unidade
             </p>
-            {dev.originalPrice > 0 && (
-              <p className="mt-1.5 text-xs text-white/75 line-through md:text-sm">
-                {formatCurrency(dev.originalPrice)}
-              </p>
-            )}
-            <p className="mt-1 text-[1.9rem] font-heading font-bold leading-none text-white md:text-[2rem]">
-              {formatCurrency(dev.discountedPrice)}
-            </p>
+            <div className="mt-2 space-y-1.5">
+              {unitDetails.map((detail) => (
+                <p key={detail.label} className="text-sm leading-snug text-white md:text-[15px]">
+                  <span className="font-semibold text-white/72">{detail.label}: </span>
+                  <span className="font-semibold">{detail.value}</span>
+                </p>
+              ))}
+            </div>
           </div>
 
           <a
@@ -171,32 +146,30 @@ export function DevelopmentsSection() {
           viewport={{ once: true }}
           className="text-3xl md:text-4xl font-heading font-bold text-center text-foreground mb-4"
         >
-          O empreendimento <span className="text-accent">Live Cacupé</span>
+          Empreendimentos em <span className="text-accent">promoção</span>
         </motion.h2>
 
         <p className="mx-auto mb-4 max-w-2xl text-center text-sm text-muted-foreground md:mb-6 md:text-base">
-          Residencial de alto padrão com 78 unidades exclusivas em 2 torres, no bairro mais privilegiado de Florianópolis.
+          Escolha o empreendimento Lumis que combina com seu momento e solicite as condições comerciais da campanha.
         </p>
 
-        {allNeighborhoods.length > 2 && (
-          <div className="mb-8 -mx-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mb-10 md:overflow-visible md:px-0">
-            <div className="flex w-max gap-2 md:w-auto md:flex-wrap md:justify-center">
-              {allNeighborhoods.map((neighborhood) => (
-                <button
-                  key={neighborhood}
-                  onClick={() => setFilter(neighborhood)}
-                  className={`rounded-full px-5 py-2 font-body text-sm font-medium whitespace-nowrap transition-all ${
-                    filter === neighborhood
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {neighborhood}
-                </button>
-              ))}
-            </div>
+        <div className="mb-8 -mx-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mb-10 md:overflow-visible md:px-0">
+          <div className="flex w-max gap-2 md:w-auto md:flex-wrap md:justify-center">
+          {allNeighborhoods.map((neighborhood) => (
+            <button
+              key={neighborhood}
+              onClick={() => setFilter(neighborhood)}
+              className={`rounded-full px-5 py-2 font-body text-sm font-medium whitespace-nowrap transition-all ${
+                filter === neighborhood
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {neighborhood}
+            </button>
+          ))}
           </div>
-        )}
+        </div>
 
         <div className="relative">
           <AnimatePresence mode="wait">
@@ -207,13 +180,18 @@ export function DevelopmentsSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="no-scrollbar -mx-3 flex gap-3 overflow-x-auto bg-white px-3 pb-3 snap-x snap-mandatory md:mx-0 md:flex md:justify-center md:gap-5 md:overflow-visible md:bg-transparent md:px-0 md:pb-0"
+              className="no-scrollbar -mx-3 flex gap-3 overflow-x-auto bg-white px-3 pb-3 snap-x snap-mandatory md:mx-auto md:grid md:max-w-6xl md:grid-cols-2 md:justify-center md:gap-5 md:overflow-visible md:bg-transparent md:px-0 md:pb-0 lg:grid-cols-4"
             >
               {filtered.map((d) => (
                 <DevelopmentCard key={d.id} dev={d} />
               ))}
             </motion.div>
           </AnimatePresence>
+          <div className="mt-3 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground md:hidden">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
+            Deslize para o lado
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/35" />
+          </div>
         </div>
       </div>
     </section>

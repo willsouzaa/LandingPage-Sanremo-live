@@ -1,27 +1,31 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Waves, Leaf, CheckCircle, MapPin } from "lucide-react";
+import { Shield, Banknote, Crown, Home } from "lucide-react";
 
 const benefits = [
   {
-    icon: Waves,
-    title: "Vista permanente para o mar",
-    description: "Cada unidade foi projetada para garantir a vista para o mar e o pôr do sol mais bonito da ilha.",
+    icon: Crown,
+    title: "Acesso VIP prioritário",
+    description: "Clientes cadastrados entram às 8h — uma hora antes do público geral  para garantir as melhores unidades e condições da tabela AZUL.",
+    highlight: true,
   },
   {
-    icon: Leaf,
-    title: "Arquitetura biofílica",
-    description: "Fachada viva com vegetação integrada, grandes varandas, brises móveis e jardins entre as torres.",
+    icon: Banknote,
+    title: "Condição que nunca houve antes",
+    description: "Oportunidade única na história da Lumis: condições comerciais agressivas em empreendimentos selecionados, disponíveis apenas no Pregão de Guerra.",
+    highlight: false,
   },
   {
-    icon: CheckCircle,
-    title: "Pronto para morar",
-    description: "98,5% das obras concluídas. Entrega imediata com toda a infraestrutura de lazer completa.",
+    icon: Home,
+    title: "Prontos para morar ou investir",
+    description: "Empreendimentos no Cacupé, Centro e Estreito, com qualidade Lumis, disponíveis para compra imediata.",
+    highlight: false,
   },
   {
-    icon: MapPin,
-    title: "Localização privilegiada",
-    description: "A 3 min da SC-401, 10 min de Jurerê Internacional e 15 min do centro de Florianópolis.",
+    icon: Shield,
+    title: "Segurança na compra",
+    description: "Construtora consolidada em Florianópolis. Aprovação de financiamento verificada antes do evento para você agir com confiança.",
+    highlight: false,
   },
 ];
 
@@ -61,14 +65,14 @@ export function BenefitsSection() {
           viewport={{ once: true }}
           className="mb-4 text-center text-3xl font-heading font-bold md:text-4xl"
         >
-          Por que escolher o <span className="text-accent">Live Cacupé</span>
+          Vantagens da <span className="text-accent">Promoção Lumis</span>
         </motion.h2>
         <p className="mx-auto mb-12 max-w-xl text-center font-body text-navy-foreground/72">
-          Um refúgio exclusivo onde natureza, conforto e sofisticação se encontram.
+          Uma campanha comercial para conhecer oportunidades reais em empreendimentos selecionados.
         </p>
 
         <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.18em] text-navy-foreground/65 md:hidden">
-          Deslize para ver mais
+          Deslize para ver mais vantagens
         </p>
 
         <div
@@ -83,11 +87,16 @@ export function BenefitsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="w-[74vw] max-w-[292px] shrink-0 snap-center snap-always rounded-xl border border-white/10 bg-white p-6 text-center text-foreground transition-all hover:-translate-y-1 hover:shadow-lg sm:w-auto sm:max-w-none sm:shrink"
+              className={`w-[74vw] max-w-[292px] shrink-0 snap-center snap-always rounded-xl border p-6 text-center text-foreground transition-all hover:-translate-y-1 hover:shadow-lg sm:w-auto sm:max-w-none sm:shrink ${b.highlight ? "border-amber-400 bg-amber-50 ring-1 ring-amber-300" : "border-white/10 bg-white"}`}
             >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <b.icon className="w-7 h-7 text-primary" />
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${b.highlight ? "bg-amber-100" : "bg-primary/10"}`}>
+                <b.icon className={`w-7 h-7 ${b.highlight ? "text-amber-600" : "text-primary"}`} />
               </div>
+              {b.highlight && (
+                <span className="inline-block mb-2 rounded-full bg-amber-400 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-900">
+                  Exclusivo VIP
+                </span>
+              )}
               <h3 className="font-heading font-semibold text-lg text-foreground mb-2">{b.title}</h3>
               <p className="text-muted-foreground font-body text-sm">{b.description}</p>
             </motion.div>

@@ -1,5 +1,11 @@
-import { liveCacupe } from "./live-cacupe";
+import { lumisHome } from "./lumis-home";
+import { lumisLive } from "./lumis-live";
+import { lumisNow } from "./lumis-now";
+import { lumisUrban } from "./lumis-urban";
 
 export const developmentItems = [
-  liveCacupe,
+  lumisLive,
+  lumisUrban,
+  lumisHome,
+  lumisNow,
 ];

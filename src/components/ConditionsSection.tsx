@@ -1,72 +1,60 @@
 import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
-const amenities = [
+const conditions = [
   {
-    image: "/content/developments/live-cacupe/hero/piscina-no-rooftop.webp",
-    label: "Lazer Premium",
-    title: "Rooftop com piscina vista mar",
-    description: "Piscina adulto e infantil no rooftop com vista panorâmica para o mar e o pôr do sol.",
+    letter: "A",
+    text: "Acesso VIP: clientes cadastrados têm atendimento preferencial das 8h às 9h no dia 30/05/2026 — uma hora antes do público geral.",
   },
   {
-    image: "/content/developments/live-cacupe/gallery/wine-pub-externo-com-ofuro.webp",
-    label: "Exclusividade",
-    title: "Wine pub com ofurô privativo",
-    description: "Espaço gourmet externo com ofurô, ideal para momentos de relaxamento com vista para a natureza.",
+    letter: "B",
+    text: "Tabela AZUL: as condições especiais estão vinculadas às unidades da tabela AZUL. Disponibilidade sujeita ao estoque no dia do evento.",
   },
   {
-    image: "/content/developments/live-cacupe/gallery/Sala-Yoga.webp",
-    label: "Bem-estar",
-    title: "Sala de yoga e meditação",
-    description: "Espaço dedicado ao equilíbrio e bem-estar, com iluminação natural e conexão com o entorno verde.",
+    letter: "C",
+    text: "Para garantir o status VIP preferencial, recomenda-se ter cadastro completo e financiamento verificado junto ao banco antes do evento.",
   },
   {
-    image: "/content/developments/live-cacupe/gallery/academia.webp",
-    label: "Fitness",
-    title: "Academia completa",
-    description: "Equipamentos modernos com vista privilegiada para manter sua rotina de saúde no próprio condomínio.",
+    letter: "D",
+    text: "Valores, descontos e fluxos de pagamento serão confirmados pelo atendimento comercial. Condições exclusivas do Pregão de Guerra Lumis — 30/05/2026.",
   },
 ];
 
 export function ConditionsSection() {
   return (
-    <section className="section-padding bg-background">
-      <div className="container max-w-6xl">
+    <section className="section-padding bg-navy text-navy-foreground">
+      <div className="container max-w-4xl text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-heading font-bold text-center text-foreground mb-4"
+          className="text-3xl md:text-4xl font-heading font-bold mb-4"
         >
-          Lazer e <span className="text-accent">bem-estar completo</span>
+          Regras do{" "}
+          <span className="text-accent">Pregão de Guerra Lumis</span>
         </motion.h2>
-        <p className="text-muted-foreground font-body mb-12 max-w-lg mx-auto text-center">
-          Uma área de lazer pensada para cada momento do seu dia, com sofisticação e integração à natureza.
+        <p className="text-navy-foreground/70 font-body mb-10 max-w-lg mx-auto">
+          Entenda como funciona o acesso VIP e as condições especiais do dia 30/05/2026.
         </p>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {amenities.map((item, i) => (
+        <div className="space-y-4">
+          {conditions.map((c, i) => (
             <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              key={c.letter}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group overflow-hidden rounded-[20px] border border-border bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+              transition={{ delay: i * 0.15 }}
+              className="flex items-start gap-4 bg-white/5 border border-white/10 rounded-xl p-5 text-left"
             >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                <span className="absolute bottom-3 left-3 rounded-full bg-accent/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-foreground backdrop-blur-sm">
-                  {item.label}
-                </span>
+              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-5 h-5 text-accent" />
               </div>
-              <div className="p-4">
-                <h3 className="font-heading text-base font-bold text-foreground">{item.title}</h3>
-                <p className="mt-1.5 font-body text-sm text-muted-foreground">{item.description}</p>
+              <div>
+                <span className="font-body text-xs uppercase tracking-wider text-champagne">
+                  Regra {c.letter}
+                </span>
+                <p className="font-body text-navy-foreground/90 mt-1">{c.text}</p>
               </div>
             </motion.div>
           ))}
