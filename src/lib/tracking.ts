@@ -1,4 +1,4 @@
-import { campaignName } from "@/content/site";
+import { campaignName, landingPageId } from "@/content/site";
 
 function inferTrafficSource(url: URL, referrer: string): string {
   const utmSource = url.searchParams.get("utm_source");
@@ -24,6 +24,7 @@ export function getTrackingPayload(origem?: string, gatilho_modal?: string) {
   const referrer = document.referrer || "";
 
   return {
+    landing_page_id: landingPageId,
     origem: origem ?? `Landing Page ${campaignName}`,
     ...(gatilho_modal ? { gatilho_modal } : {}),
     origem_detectada: inferTrafficSource(url, referrer),
