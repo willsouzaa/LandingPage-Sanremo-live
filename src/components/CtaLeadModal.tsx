@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, ChevronDown, Clock, Send } from "lucide-react";
+import { toast } from "sonner";
 import { allDevelopmentsForForm } from "@/content/developments";
 import { campaignName, eventDateLabel, leadWebhookUrl } from "@/content/site";
+import { getTrackingPayload } from "@/lib/tracking";
+import { modalLeadSchema, type ModalLeadFormData } from "@/lib/schemas";
+import { useModal } from "@/context/ModalContext";
 import { Countdown } from "@/components/Countdown";
 import {
   Dialog,
@@ -10,127 +15,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-const MODAL_DISMISSED_KEY = "sanremo-cta-modal-dismissed";
-const MODAL_SUBMITTED_KEY = "sanremo-cta-modal-submitted";
-const MODAL_DELAY_MS = 22000;
-
-function inferTrafficSource(url: URL, referrer: string) {
-  const utmSource = url.searchParams.get("utm_source");
-  if (utmSource) return utmSource.toLowerCase();
-
-  if (url.searchParams.get("gclid")) return "google_ads";
-  if (url.searchParams.get("fbclid")) return "facebook_ads";
-  if (url.searchParams.get("ttclid")) return "tiktok_ads";
-
-  const ref = referrer.toLowerCase();
-  if (ref.includes("google.")) return "google";
-  if (ref.includes("instagram.")) return "instagram";
-  if (ref.includes("facebook.")) return "facebook";
-  if (ref.includes("linkedin.")) return "linkedin";
-  if (ref.includes("tiktok.")) return "tiktok";
-  if (ref.includes("bing.")) return "bing";
-
-  return "direto";
-}
-
-function getTrackingPayload(trigger: string) {
-  const url = new URL(window.location.href);
-  const referrer = document.referrer || "";
-
-  return {
-    origem: `Modal CTA ${campaignName}`,
-    gatilho_modal: trigger,
-    origem_detectada: inferTrafficSource(url, referrer),
-    url_pagina: url.href,
-    url_origem: referrer || null,
-    path: url.pathname,
-    querystring: url.search,
-    utm_source: url.searchParams.get("utm_source"),
-    utm_medium: url.searchParams.get("utm_medium"),
-    utm_campaign: url.searchParams.get("utm_campaign"),
-    utm_content: url.searchParams.get("utm_content"),
-    utm_term: url.searchParams.get("utm_term"),
-    gclid: url.searchParams.get("gclid"),
-    fbclid: url.searchParams.get("fbclid"),
-    ttclid: url.searchParams.get("ttclid"),
-  };
-}
-
-function canShowModal() {
-  return (
-    sessionStorage.getItem(MODAL_DISMISSED_KEY) !== "true" &&
-    sessionStorage.getItem(MODAL_SUBMITTED_KEY) !== "true"
-  );
-}
+import { useState } from "react";
 
 export function CtaLeadModal() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, trigger, success: submitted, setSuccess, dismiss, markSubmitted } = useModal();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const triggerRef = useRef("tempo_na_pagina");
-  const pendingHrefRef = useRef<string | null>(null);
 
-  const openModal = (trigger: string, pendingHref?: string) => {
-    if (!canShowModal() || open || success) return;
-    triggerRef.current = trigger;
-    pendingHrefRef.current = pendingHref ?? null;
-    setOpen(true);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ModalLeadFormData>({
+    resolver: zodResolver(modalLeadSchema),
+    defaultValues: { nome: "", telefone: "", email: "", empreendimento: "" },
+  });
 
-  useEffect(() => {
-    if (!canShowModal()) return;
-
-    const timer = window.setTimeout(() => {
-      openModal("tempo_na_pagina");
-    }, MODAL_DELAY_MS);
-
-    const handleMouseLeave = (event: MouseEvent) => {
-      if (event.clientY <= 0) {
-        openModal("intencao_de_saida");
-      }
-    };
-
-    const handleDocumentClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      const link = target?.closest("a[href]") as HTMLAnchorElement | null;
-      if (!link || !canShowModal()) return;
-
-      const href = link.getAttribute("href");
-      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
-        return;
-      }
-
-      const destination = new URL(link.href, window.location.href);
-      if (destination.origin !== window.location.origin) {
-        event.preventDefault();
-        openModal("clique_saida_pagina", link.href);
-      }
-    };
-
-    document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("click", handleDocumentClick, true);
-
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      document.removeEventListener("click", handleDocumentClick, true);
-    };
-  }, [open, success]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function onSubmit(data: ModalLeadFormData) {
     setLoading(true);
-
-    const form = new FormData(event.currentTarget);
     const payload = {
-      nome: form.get("nome"),
-      telefone: form.get("telefone"),
-      email: form.get("email"),
-      empreendimento: form.get("empreendimento"),
+      ...data,
       data_evento: eventDateLabel,
       enviado_em: new Date().toISOString(),
-      ...getTrackingPayload(triggerRef.current),
+      ...getTrackingPayload(`Modal CTA ${campaignName}`, trigger),
     };
 
     try {
@@ -140,15 +47,13 @@ export function CtaLeadModal() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Webhook response was not ok");
-      }
+      if (!response.ok) throw new Error("Webhook response was not ok");
 
-      sessionStorage.setItem(MODAL_SUBMITTED_KEY, "true");
+      markSubmitted();
       setSuccess(true);
-      event.currentTarget.reset();
+      reset();
     } catch {
-      alert("Erro ao enviar. Tente novamente.");
+      toast.error("Erro ao enviar. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -156,18 +61,14 @@ export function CtaLeadModal() {
 
   const inputClass =
     "w-full rounded-lg border border-border bg-white px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50";
+  const inputErrorClass = `${inputClass} border-red-400 focus:ring-red-300`;
 
   return (
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
-        if (!nextOpen && !success) {
-          sessionStorage.setItem(MODAL_DISMISSED_KEY, "true");
-          if (pendingHrefRef.current) {
-            window.location.href = pendingHrefRef.current;
-          }
-        }
+        if (!nextOpen && !submitted) dismiss();
       }}
     >
       <DialogContent className="max-h-[92svh] max-w-[640px] overflow-y-auto rounded-2xl border-white/10 bg-white p-0 text-foreground shadow-2xl">
@@ -191,7 +92,7 @@ export function CtaLeadModal() {
         </div>
 
         <div className="px-6 py-6 md:px-8">
-          {success ? (
+          {submitted ? (
             <div className="py-6 text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <CheckCircle className="h-8 w-8 text-primary" />
@@ -202,34 +103,43 @@ export function CtaLeadModal() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                name="nome"
-                autoComplete="name"
-                required
-                placeholder="Seu nome completo"
-                className={inputClass}
-                maxLength={100}
-              />
-              <input
-                name="telefone"
-                autoComplete="tel"
-                required
-                placeholder="WhatsApp / Telefone"
-                className={inputClass}
-                maxLength={20}
-              />
-              <input
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="Seu e-mail"
-                className={inputClass}
-                maxLength={255}
-              />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+              <div>
+                <input
+                  {...register("nome")}
+                  autoComplete="name"
+                  placeholder="Seu nome completo"
+                  className={errors.nome ? inputErrorClass : inputClass}
+                  maxLength={100}
+                />
+                {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome.message}</p>}
+              </div>
+              <div>
+                <input
+                  {...register("telefone")}
+                  autoComplete="tel"
+                  placeholder="WhatsApp / Telefone"
+                  className={errors.telefone ? inputErrorClass : inputClass}
+                  maxLength={20}
+                />
+                {errors.telefone && <p className="mt-1 text-xs text-red-500">{errors.telefone.message}</p>}
+              </div>
+              <div>
+                <input
+                  {...register("email")}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Seu e-mail"
+                  className={errors.email ? inputErrorClass : inputClass}
+                  maxLength={255}
+                />
+                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+              </div>
               <div className="relative">
-                <select name="empreendimento" className={`${inputClass} appearance-none pr-12`} defaultValue="">
+                <select
+                  {...register("empreendimento")}
+                  className={`${inputClass} appearance-none pr-12`}
+                >
                   <option value="">Empreendimento de interesse</option>
                   {allDevelopmentsForForm.map((development) => (
                     <option key={development} value={development}>

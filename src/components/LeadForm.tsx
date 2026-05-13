@@ -1,70 +1,54 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Send, CheckCircle, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 import { allDevelopmentsForForm, neighborhoods } from "@/content/developments";
 import { campaignName, eventDateLabel, leadWebhookUrl } from "@/content/site";
-
-function inferTrafficSource(url: URL, referrer: string) {
-  const utmSource = url.searchParams.get("utm_source");
-  if (utmSource) return utmSource.toLowerCase();
-
-  if (url.searchParams.get("gclid")) return "google_ads";
-  if (url.searchParams.get("fbclid")) return "facebook_ads";
-  if (url.searchParams.get("ttclid")) return "tiktok_ads";
-
-  const ref = referrer.toLowerCase();
-  if (ref.includes("google.")) return "google";
-  if (ref.includes("instagram.")) return "instagram";
-  if (ref.includes("facebook.")) return "facebook";
-  if (ref.includes("linkedin.")) return "linkedin";
-  if (ref.includes("tiktok.")) return "tiktok";
-  if (ref.includes("bing.")) return "bing";
-
-  return "direto";
-}
-
-function getTrackingPayload() {
-  const url = new URL(window.location.href);
-  const referrer = document.referrer || "";
-
-  return {
-    origem: `Landing Page ${campaignName}`,
-    origem_detectada: inferTrafficSource(url, referrer),
-    url_pagina: url.href,
-    url_origem: referrer || null,
-    path: url.pathname,
-    querystring: url.search,
-    utm_source: url.searchParams.get("utm_source"),
-    utm_medium: url.searchParams.get("utm_medium"),
-    utm_campaign: url.searchParams.get("utm_campaign"),
-    utm_content: url.searchParams.get("utm_content"),
-    utm_term: url.searchParams.get("utm_term"),
-    gclid: url.searchParams.get("gclid"),
-    fbclid: url.searchParams.get("fbclid"),
-    ttclid: url.searchParams.get("ttclid"),
-  };
-}
+import { getTrackingPayload } from "@/lib/tracking";
+import { leadSchema, type LeadFormData } from "@/lib/schemas";
 
 export function LeadForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState("");
-  const [selectedDevelopment, setSelectedDevelopment] = useState("");
 
-  const allDevs = allDevelopmentsForForm;
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm<LeadFormData>({
+    resolver: zodResolver(leadSchema),
+    defaultValues: { nome: "", telefone: "", email: "", bairro: "", empreendimento: "", mensagem: "" },
+  });
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  useEffect(() => {
+    const applyPrefill = (prefill?: { empreendimento?: string; bairro?: string }) => {
+      if (prefill?.empreendimento) setValue("empreendimento", prefill.empreendimento);
+      if (prefill?.bairro) setValue("bairro", prefill.bairro);
+    };
+
+    const savedPrefill = sessionStorage.getItem("sanremo-interest-prefill");
+    if (savedPrefill) {
+      try { applyPrefill(JSON.parse(savedPrefill)); } catch { /* ignore */ }
+    }
+
+    const handlePrefill = (event: Event) => {
+      const customEvent = event as CustomEvent<{ empreendimento?: string; bairro?: string }>;
+      applyPrefill(customEvent.detail);
+    };
+
+    window.addEventListener("sanremo-prefill-form", handlePrefill as EventListener);
+    return () => window.removeEventListener("sanremo-prefill-form", handlePrefill as EventListener);
+  }, [setValue]);
+
+  async function onSubmit(data: LeadFormData) {
     setLoading(true);
-
-    const form = new FormData(e.currentTarget);
     const payload = {
-      nome: form.get("nome"),
-      telefone: form.get("telefone"),
-      email: form.get("email"),
-      bairro: form.get("bairro"),
-      empreendimento: form.get("empreendimento"),
-      mensagem: form.get("mensagem"),
+      ...data,
       data_evento: eventDateLabel,
       enviado_em: new Date().toISOString(),
       ...getTrackingPayload(),
@@ -77,14 +61,12 @@ export function LeadForm() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Webhook response was not ok");
-      }
+      if (!response.ok) throw new Error("Webhook response was not ok");
 
       setSuccess(true);
-      e.currentTarget.reset();
+      reset();
     } catch {
-      alert("Erro ao enviar. Tente novamente.");
+      toast.error("Erro ao enviar. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -93,34 +75,9 @@ export function LeadForm() {
   const inputClass =
     "w-full rounded-xl border border-border bg-background px-4 py-3 font-body text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition md:text-sm";
 
+  const inputErrorClass = `${inputClass} border-red-400 focus:ring-red-300`;
   const selectClass = `${inputClass} appearance-none pr-12`;
-
-  useEffect(() => {
-    const applyPrefill = (prefill?: { empreendimento?: string; bairro?: string }) => {
-      setSelectedDevelopment(prefill?.empreendimento ?? "");
-      setSelectedNeighborhood(prefill?.bairro ?? "");
-    };
-
-    const savedPrefill = sessionStorage.getItem("sanremo-interest-prefill");
-    if (savedPrefill) {
-      try {
-        applyPrefill(JSON.parse(savedPrefill));
-      } catch {
-        applyPrefill();
-      }
-    }
-
-    const handlePrefill = (event: Event) => {
-      const customEvent = event as CustomEvent<{ empreendimento?: string; bairro?: string }>;
-      applyPrefill(customEvent.detail);
-    };
-
-    window.addEventListener("sanremo-prefill-form", handlePrefill as EventListener);
-
-    return () => {
-      window.removeEventListener("sanremo-prefill-form", handlePrefill as EventListener);
-    };
-  }, []);
+  const selectErrorClass = `${inputErrorClass} appearance-none pr-12`;
 
   if (success) {
     return (
@@ -164,7 +121,7 @@ export function LeadForm() {
         </div>
 
         <motion.form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -175,73 +132,90 @@ export function LeadForm() {
               Seus dados
             </p>
           </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
-            <input
-              name="nome"
-              autoComplete="name"
-              required
-              placeholder="Seu nome completo"
-              className={inputClass}
-              maxLength={100}
-            />
-            <input
-              name="telefone"
-              autoComplete="tel"
-              required
-              placeholder="WhatsApp / Telefone"
-              className={inputClass}
-              maxLength={20}
-            />
+            <div>
+              <input
+                {...register("nome")}
+                autoComplete="name"
+                placeholder="Seu nome completo"
+                className={errors.nome ? inputErrorClass : inputClass}
+                maxLength={100}
+              />
+              {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome.message}</p>}
+            </div>
+            <div>
+              <input
+                {...register("telefone")}
+                autoComplete="tel"
+                placeholder="WhatsApp / Telefone"
+                className={errors.telefone ? inputErrorClass : inputClass}
+                maxLength={20}
+              />
+              {errors.telefone && <p className="mt-1 text-xs text-red-500">{errors.telefone.message}</p>}
+            </div>
           </div>
-          <input
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="Seu e-mail"
-            className={inputClass}
-            maxLength={255}
-          />
+
+          <div>
+            <input
+              {...register("email")}
+              type="email"
+              autoComplete="email"
+              placeholder="Seu e-mail"
+              className={errors.email ? inputErrorClass : inputClass}
+              maxLength={255}
+            />
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+          </div>
 
           <div className="pt-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Interesse no evento
             </p>
           </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="relative">
-              <select
-                name="bairro"
-                required
-                className={selectClass}
-                value={selectedNeighborhood}
-                onChange={(event) => setSelectedNeighborhood(event.target.value)}
-              >
-                <option value="" disabled>Bairro de interesse</option>
-                {neighborhoods.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <div>
+              <div className="relative">
+                <Controller
+                  name="bairro"
+                  control={control}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className={errors.bairro ? selectErrorClass : selectClass}
+                    >
+                      <option value="" disabled>Bairro de interesse</option>
+                      {neighborhoods.map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  )}
+                />
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              </div>
+              {errors.bairro && <p className="mt-1 text-xs text-red-500">{errors.bairro.message}</p>}
             </div>
+
             <div className="relative">
-              <select
+              <Controller
                 name="empreendimento"
-                className={selectClass}
-                value={selectedDevelopment}
-                onChange={(event) => setSelectedDevelopment(event.target.value)}
-              >
-                <option value="">Empreendimento (opcional)</option>
-                {allDevs.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
+                control={control}
+                render={({ field }) => (
+                  <select {...field} className={selectClass}>
+                    <option value="">Empreendimento (opcional)</option>
+                    {allDevelopmentsForForm.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                )}
+              />
               <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             </div>
           </div>
 
           <textarea
-            name="mensagem"
+            {...register("mensagem")}
             rows={3}
             placeholder="Mensagem (opcional)"
             className={inputClass}

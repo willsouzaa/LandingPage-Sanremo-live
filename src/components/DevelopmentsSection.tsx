@@ -1,11 +1,8 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowDownRight, MapPin } from "lucide-react";
-import {
-  activeDevelopments,
-  neighborhoodFilters,
-  type DevelopmentContent,
-} from "@/content/developments";
+import { ArrowDownRight } from "lucide-react";
+import { type DevelopmentContent } from "@/content/developments";
+import { useDevelopmentFilter } from "@/hooks/use-development-filter";
 
 function handleInterestClick(dev: DevelopmentContent) {
   const payload = {
@@ -43,8 +40,7 @@ function DevelopmentCard({ dev }: { dev: DevelopmentContent }) {
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/40 to-navy">
-          </div>
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/40 to-navy" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-navy/15 via-transparent to-black/80" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/95 via-black/65 to-transparent" />
@@ -70,7 +66,6 @@ function DevelopmentCard({ dev }: { dev: DevelopmentContent }) {
           <h3 className="max-w-[12ch] font-heading text-[1.8rem] font-bold leading-none text-white md:text-[2rem]">
             {dev.projectName}
           </h3>
-    ret
 
           <div className="mt-3 rounded-[18px] bg-white/18 px-4 py-2.5 backdrop-blur-sm">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
@@ -104,14 +99,8 @@ function DevelopmentCard({ dev }: { dev: DevelopmentContent }) {
 }
 
 export function DevelopmentsSection() {
-  const [filter, setFilter] = useState("Todos");
+  const { filter, setFilter, filtered, neighborhoods } = useDevelopmentFilter();
   const carouselRef = useRef<HTMLDivElement | null>(null);
-
-  const developments = activeDevelopments;
-  const allNeighborhoods = neighborhoodFilters;
-
-  const filtered =
-    filter === "Todos" ? developments : developments.filter((d) => d.neighborhood === filter);
 
   const handleCarouselWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     if (window.innerWidth >= 768) return;
@@ -155,19 +144,19 @@ export function DevelopmentsSection() {
 
         <div className="mb-8 -mx-3 overflow-x-auto px-3 pb-2 md:mx-0 md:mb-10 md:overflow-visible md:px-0">
           <div className="flex w-max gap-2 md:w-auto md:flex-wrap md:justify-center">
-          {allNeighborhoods.map((neighborhood) => (
-            <button
-              key={neighborhood}
-              onClick={() => setFilter(neighborhood)}
-              className={`rounded-full px-5 py-2 font-body text-sm font-medium whitespace-nowrap transition-all ${
-                filter === neighborhood
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {neighborhood}
-            </button>
-          ))}
+            {neighborhoods.map((neighborhood) => (
+              <button
+                key={neighborhood}
+                onClick={() => setFilter(neighborhood)}
+                className={`rounded-full px-5 py-2 font-body text-sm font-medium whitespace-nowrap transition-all ${
+                  filter === neighborhood
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {neighborhood}
+              </button>
+            ))}
           </div>
         </div>
 
