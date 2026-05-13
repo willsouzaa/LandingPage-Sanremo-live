@@ -64,7 +64,6 @@ export function LeadForm() {
       email: form.get("email"),
       bairro: form.get("bairro"),
       empreendimento: form.get("empreendimento"),
-      atendimento: form.get("atendimento"),
       mensagem: form.get("mensagem"),
       data_evento: eventDateLabel,
       enviado_em: new Date().toISOString(),
@@ -239,17 +238,6 @@ export function LeadForm() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             </div>
-          </div>
-
-          <div className="relative">
-            <select name="atendimento" className={selectClass} defaultValue="">
-              <option value="">Preferência de atendimento</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="ligacao">Ligação</option>
-              <option value="email">E-mail</option>
-              <option value="presencial">Presencial</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           </div>
 
           <textarea
