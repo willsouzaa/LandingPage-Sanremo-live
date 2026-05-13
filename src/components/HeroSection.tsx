@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import heroImage from "@/assets/lumis/lumis-hero.webp";
 import logoSanremo from "@/assets/Sanremo.png";
+import logoLumis from "@/assets/lumis/lumis-logo.png";
 
 export function HeroSection() {
   return (
@@ -27,14 +28,11 @@ export function HeroSection() {
             className="h-10 w-auto max-w-[38vw] brightness-0 invert drop-shadow-2xl md:h-20 md:max-w-none"
           />
           <div className="h-9 w-px bg-white/35 md:h-16" />
-          <div className="flex flex-col items-center">
-            <span className="font-body text-[10px] font-semibold uppercase tracking-[0.28em] text-champagne md:text-xs">
-              Lumis Construtora
-            </span>
-            <span className="mt-1 font-heading text-4xl font-bold leading-none text-white md:text-7xl">
-              LUMIS
-            </span>
-          </div>
+          <img
+            src={logoLumis}
+            alt="Lumis Construtora"
+            className="h-12 w-auto max-w-[38vw] brightness-0 invert drop-shadow-2xl md:h-20 md:max-w-none"
+          />
         </motion.div>
 
         <motion.div
